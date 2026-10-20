@@ -38,6 +38,7 @@ report can name the entry below it came from. See
 - Upgraded `@stellar/stellar-sdk` to `^17.1.0` and added migration plan and testnet smoke verification checklist (#383).
 
 ### Fixed
+- Loan proposals now show their supporting-document indicator on /loans: the contract's `metadata_cid` is mapped to `documentHash` instead of being dropped, so a request created with a document is no longer indistinguishable from one without (#476).
 - The dashboard shows one claimable yield amount and one claim button instead of the same pending amount as both "rewards" and "yield" (#345).
 - Removed the loan list's Privacy filter, Private stat and purpose search, which could never match anything because loan proposals are public and store no purpose; search now matches borrower address and proposal id, and proposal cards no longer render an empty description (#346).
 - Admin add/remove/threshold/pause failures no longer surface as unhandled promise rejections, and the consensus threshold rejects non-integers before signing (#330).

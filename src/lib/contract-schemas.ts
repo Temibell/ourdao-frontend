@@ -84,6 +84,9 @@ export const loanProposalSchema = z.object({
   against_votes: finiteNumber(0),
   created_at: finiteNumber(0),
   editing_period_end: finiteNumber(0),
+  // `Option<string>` on the contract: absent (`None`) until the borrower
+  // supplies a supporting document with the request (#476).
+  metadata_cid: stringValue(''),
 })
 
 export const treasuryProposalSchema = z.object({

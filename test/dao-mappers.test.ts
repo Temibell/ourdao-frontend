@@ -212,6 +212,21 @@ describe('mapLoanProposal', () => {
     expect(mapTreasuryProposal({ id: 1, amount: BigInt(1), destination: 'GD' }).status).toBe(0)
   })
 
+  it('maps the proposal\'s metadata_cid to documentHash (#476)', () => {
+    const cid = 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi'
+    expect(mapLoanProposal({ id: 1, metadata_cid: cid }).documentHash).toBe(cid)
+    expect(mapLoanProposal({ id: 1, metadata_cid: 'QmYwAPJzv5CZsnAzt8auVZRnDaBcE7WtAipUjXk5rL8gTX' }).documentHash).toBe(
+      'QmYwAPJzv5CZsnAzt8auVZRnDaBcE7WtAipUjXk5rL8gTX'
+    )
+  })
+
+  it('leaves documentHash empty when the proposal has no metadata_cid (#476)', () => {
+    // `Option<string>` is `None` on-chain for a request without a document.
+    expect(mapLoanProposal({ id: 1 }).documentHash).toBe('')
+    expect(mapLoanProposal({ id: 1, metadata_cid: null }).documentHash).toBe('')
+    expect(mapLoanProposal({ id: 1, metadata_cid: undefined }).documentHash).toBe('')
+  })
+
   it('defaults hasVoted to false when no voter context is supplied', () => {
     expect(mapLoanProposal({ id: 1 }).hasVoted).toBe(false)
   })

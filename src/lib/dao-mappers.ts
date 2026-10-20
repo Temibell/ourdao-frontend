@@ -197,7 +197,10 @@ export function mapLoanProposal(raw: Record<string, unknown>, hasVoted = false):
     votingStartTime: editingEnd,
     votingEndTime: editingEnd ? editingEnd + GOVERNANCE_PERIOD_FALLBACKS.votingPeriod : 0,
     isPrivate: false, // loan proposals are public; treasury proposals can be private
-    documentHash: '',
+    // The contract stores the borrower's supporting-document pointer as
+    // `metadata_cid` (`None` when there isn't one); the loans list gates its
+    // document indicator on this being non-empty (#476).
+    documentHash: v.metadata_cid,
     hasVoted,
   }
 }
