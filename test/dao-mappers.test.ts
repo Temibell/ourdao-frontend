@@ -350,8 +350,31 @@ describe('resolveLoanPolicy', () => {
 })
 
 describe('mapLoanProposal voting end', () => {
-  it('ends voting one governance voting period after editing ends', () => {
+  it("uses the proposal's own voting_period, not the constants fallback (#477)", () => {
+    // A policy whose period differs from GOVERNANCE_PERIOD_FALLBACKS is the
+    // case the fallback got wrong: the contract stores the period per
+    // proposal, so the deadline must come from the record.
+    const twoDays = 2 * 24 * 60 * 60
+    expect(twoDays).not.toBe(GOVERNANCE_PERIOD_FALLBACKS.votingPeriod)
+    const p = mapLoanProposal({ editing_period_end: 1000, voting_period: twoDays })
+    expect(p.votingEndTime).toBe(1000 + twoDays)
+  })
+
+  it('ends voting one governance voting period after editing ends when the field is missing', () => {
     const p = mapLoanProposal({ editing_period_end: 1000 })
     expect(p.votingEndTime).toBe(1000 + GOVERNANCE_PERIOD_FALLBACKS.votingPeriod)
+  })
+
+  it('falls back for an unusable voting_period rather than ending voting immediately', () => {
+    expect(mapLoanProposal({ editing_period_end: 1000, voting_period: 0 }).votingEndTime).toBe(
+      1000 + GOVERNANCE_PERIOD_FALLBACKS.votingPeriod
+    )
+    expect(mapLoanProposal({ editing_period_end: 1000, voting_period: 'x' }).votingEndTime).toBe(
+      1000 + GOVERNANCE_PERIOD_FALLBACKS.votingPeriod
+    )
+  })
+
+  it('leaves the deadline at 0 when editing never ended', () => {
+    expect(mapLoanProposal({ voting_period: 60 }).votingEndTime).toBe(0)
   })
 })

@@ -184,6 +184,10 @@ export function mapLoanProposal(raw: Record<string, unknown>, hasVoted = false):
   }
   const v = parsed.data
   const editingEnd = v.editing_period_end
+  // Prefer the period the contract stored on the proposal itself; the fallback
+  // is only for a record that predates it or arrives without it (#185, #477).
+  const votingPeriod =
+    v.voting_period > 0 ? v.voting_period : GOVERNANCE_PERIOD_FALLBACKS.votingPeriod
   return {
     id: v.id,
     borrower: v.borrower,
@@ -195,7 +199,7 @@ export function mapLoanProposal(raw: Record<string, unknown>, hasVoted = false):
     votesAgainst: v.against_votes,
     creationTime: v.created_at,
     votingStartTime: editingEnd,
-    votingEndTime: editingEnd ? editingEnd + GOVERNANCE_PERIOD_FALLBACKS.votingPeriod : 0,
+    votingEndTime: editingEnd ? editingEnd + votingPeriod : 0,
     isPrivate: false, // loan proposals are public; treasury proposals can be private
     // The contract stores the borrower's supporting-document pointer as
     // `metadata_cid` (`None` when there isn't one); the loans list gates its
